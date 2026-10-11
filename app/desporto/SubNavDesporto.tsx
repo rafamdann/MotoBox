@@ -16,8 +16,10 @@
      de ícone da secção: uma fila de pílulas da mesma altura, 5px entre elas,
      com a activa a vermelho. Fica parada enquanto o painel rola por baixo,
      como o logótipo;
-   - no telemóvel e no tablet é uma faixa fina por cima do painel, a deslizar
-     na horizontal, com a secção activa trazida para a vista. */
+   - no telemóvel e no tablet é uma faixa por cima do painel: o caminho numa
+     linha e, por baixo, todas as secções à vista numa grelha de botões do
+     mesmo tamanho (três por linha no telemóvel, todas numa linha no tablet),
+     sem nada escondido fora do ecrã, com a activa a vermelho. */
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -26,9 +28,20 @@ import { useIdioma } from "@/lib/i18n/contexto";
 import { caminhoDaPagina } from "@/lib/base";
 import { MODALIDADE_PRINCIPAL, SECCOES_DESPORTO, SECCOES_MOTOCROSS } from "@/lib/desporto";
 
-/** Pílula: escura e opaca no computador (o painel rola por baixo sem se ver), a activa a vermelho. */
+/**
+ * Pílula. No telemóvel e no tablet é um botão da grelha, centrado e um pouco mais
+ * claro; no computador, escura e opaca (o painel rola por baixo sem se ver).
+ * A activa é sempre vermelha.
+ */
 const PILULA =
-  "pilula lg:bg-near-black lg:hover:bg-[#262626] lg:aria-[current=page]:bg-mb-red";
+  "pilula h-8 justify-center bg-white/10 px-2 text-white/85 hover:bg-white/15 aria-[current=page]:bg-mb-red aria-[current=page]:font-medium aria-[current=page]:text-white " +
+  "lg:h-9 lg:px-[0.95rem] lg:bg-near-black lg:font-normal lg:hover:bg-[#262626] lg:aria-[current=page]:bg-mb-red";
+
+/** Colunas da grelha no telemóvel e no tablet: todas à vista, sem deslizar. */
+function colunas(n: number): { telemovel: number; tablet: number } {
+  const telemovel = n <= 3 ? n : n === 4 ? 2 : 3;
+  return { telemovel, tablet: Math.min(n, 6) };
+}
 
 export function SubNavDesporto({
   modalidade,
@@ -61,7 +74,7 @@ export function SubNavDesporto({
   // se está já vem acesa nas pílulas, por isso o caminho fica só "Desporto".
   const segundo = modalidade && nome ? { href: raiz, nome } : undefined;
 
-  // No telemóvel a fila desliza: se a secção acesa ficou fora da vista, centrá-la.
+  // No computador a fila pode deslizar: se a secção acesa ficou fora da vista, centrá-la.
   useEffect(() => {
     const f = faixa.current;
     const activa = f?.querySelector<HTMLElement>('[data-seccao][aria-current="page"]');
@@ -84,10 +97,10 @@ export function SubNavDesporto({
     >
       <div
         ref={faixa}
-        className="no-scrollbar flex items-center gap-[var(--intervalo)] overflow-x-auto px-4 py-2.5 md:px-5 lg:p-0"
+        className="no-scrollbar flex flex-col gap-2 px-4 py-2.5 md:px-5 lg:flex-row lg:items-center lg:gap-[var(--intervalo)] lg:overflow-x-auto lg:p-0"
       >
         <nav aria-label={t("desporto.caminho")} className="shrink-0">
-          <ol className="flex h-9 items-center gap-2 pr-2 text-sm lg:rounded-[4px] lg:bg-near-black lg:px-3.5">
+          <ol className="flex h-6 items-center gap-2 pr-2 text-sm lg:h-9 lg:rounded-[4px] lg:bg-near-black lg:px-3.5">
             <li>
               <Link
                 href="/desporto"
@@ -117,7 +130,11 @@ export function SubNavDesporto({
         {seccoes.length > 0 && (
           <nav
             aria-label={modalidade ? (modalidade === MODALIDADE_PRINCIPAL ? t("desporto.seccoesMotocross") : nome) : t("nav.desporto")}
-            className="flex shrink-0 gap-[var(--intervalo)]"
+            className="grid grid-cols-[repeat(var(--colunas),minmax(0,1fr))] gap-[var(--intervalo)] md:grid-cols-[repeat(var(--colunas-md),minmax(0,1fr))] lg:flex lg:shrink-0"
+            style={{
+              ["--colunas" as string]: colunas(seccoes.length).telemovel,
+              ["--colunas-md" as string]: colunas(seccoes.length).tablet,
+            }}
           >
             {seccoes.map((s) => (
               <Link

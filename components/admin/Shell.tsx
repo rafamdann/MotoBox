@@ -195,7 +195,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     <nav aria-label="Secções da gestão" className="flex h-full flex-col gap-[var(--intervalo)]">
       <div className="flex shrink-0 gap-[var(--intervalo)]">
         <Link href="/admin" aria-label="Painel de gestão" className="painel grid size-[var(--tile)] shrink-0 place-items-center transition-colors hover:bg-white/10">
-          <Image src={comBase("/marca/mb-marca-480.png")} alt="" width={480} height={244} unoptimized priority className="w-[3.4rem]" />
+          <Image src={comBase("/marca/motobox-original-240.png")} alt="" width={240} height={240} unoptimized priority className="w-[90%] max-w-[5.25rem]" />
         </Link>
         <div className="painel flex min-w-0 flex-1 flex-col justify-center px-4">
           <p className="truncate text-[15px] font-semibold leading-tight">Gestão</p>

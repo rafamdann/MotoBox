@@ -11,8 +11,10 @@ import { useTextosGerais } from "./TextosGerais";
    O único comando fixo do site, por baixo da moldura:
    na entrada abre o painel ("Explorar"), no painel volta à
    entrada ("Fechar"), em qualquer outra página regressa ao
-   painel. No telemóvel é uma barra vermelha a toda a largura.
-   Os textos editam-se em Gestão › Entrada e painel › Geral.
+   painel. No telemóvel é uma pílula escura e compacta que
+   flutua ao centro, por cima da margem segura do ecrã, com o
+   ícone num círculo vermelho (o vermelho fica só como acento);
+   no computador, o botão vermelho de sempre. Os textos editam-se em Gestão › Entrada e painel › Geral.
    ============================================================ */
 
 type Estado = "explorar" | "fechar" | "voltar";
@@ -39,13 +41,16 @@ export function BarraAccao() {
 
   return (
     <>
-      {/* Ligação de conta: no telemóvel fica no fim do conteúdo, por cima da barra. */}
-      <div className="px-[var(--gutter)] pb-6 pt-5 text-right lg:hidden">
-        <LigacaoConta />
-      </div>
+      {/* Ligação de conta: no telemóvel fica no fim do conteúdo, por cima da barra.
+          No painel (que cabe num ecrã) está dentro do próprio painel, na página "Mais". */}
+      {estado !== "fechar" && (
+        <div className="px-[var(--gutter)] pb-6 pt-5 text-right lg:hidden">
+          <LigacaoConta />
+        </div>
+      )}
 
       <div
-        className={`fixed inset-x-0 bottom-0 z-40 h-20 ${
+        className={`fixed inset-x-0 bottom-0 z-40 max-lg:pointer-events-none max-lg:bottom-[calc(env(safe-area-inset-bottom,0px)+0.875rem)] max-lg:flex max-lg:justify-center ${
           flutua
             ? "lg:pointer-events-none lg:bottom-6 lg:flex lg:h-auto lg:justify-center"
             : "lg:relative lg:z-auto lg:flex lg:h-[var(--zona-accao)] lg:justify-center lg:pt-[15px]"
@@ -55,21 +60,24 @@ export function BarraAccao() {
           href={DESTINO[estado]}
           aria-label={rotulo[estado]}
           data-estado={estado}
-          className={`group/accao pointer-events-auto flex h-full w-full items-center bg-mb-red px-5 text-[15px] text-white transition-colors duration-300 hover:bg-mb-red-dark lg:h-[50px] lg:w-[210px] lg:rounded-[var(--raio)] ${
+          className={`group/accao pointer-events-auto flex items-center px-5 text-[15px] text-white transition-colors duration-300 lg:h-[50px] lg:w-[210px] lg:rounded-[var(--raio)] lg:bg-mb-red lg:hover:bg-mb-red-dark ${
             flutua ? "lg:shadow-[0_12px_40px_rgb(0_0_0/0.55)]" : ""
+          } max-lg:h-12 max-lg:w-[11.75rem] max-lg:rounded-full max-lg:bg-[rgb(29_29_35/0.78)] max-lg:shadow-[0_10px_30px_rgb(0_0_0/0.45)] max-lg:ring-1 max-lg:ring-white/15 max-lg:backdrop-blur-md max-lg:hover:bg-[rgb(29_29_35/0.92)] ${
+            estado === "voltar" ? "max-lg:pl-1.5" : "max-lg:pr-1.5"
           }`}
         >
-          <span className="relative block h-[1.3em] w-full overflow-hidden">
+          {/* No telemóvel a linha tem a altura do círculo do ícone; no computador, a de uma linha de texto. */}
+          <span className="relative block h-9 w-full overflow-hidden lg:h-[1.3em]">
             <Rotulo activo={estado === "explorar"} de={estado === "fechar" ? "baixo" : "cima"}>
               <span>{barra.explorar}</span>
-              <IconeMenu />
+              <Circulo><IconeMenu /></Circulo>
             </Rotulo>
             <Rotulo activo={estado === "fechar"} de="baixo">
               <span>{barra.fechar}</span>
-              <IconeFechar />
+              <Circulo><IconeFechar /></Circulo>
             </Rotulo>
             <Rotulo activo={estado === "voltar"} de="baixo" inicio>
-              <IconeVoltar />
+              <Circulo><IconeVoltar /></Circulo>
               <span>{barra.voltar}</span>
             </Rotulo>
           </span>
@@ -102,13 +110,18 @@ function Rotulo({
   return (
     <span
       aria-hidden
-      className={`absolute inset-0 flex items-center gap-x-6 transition-all duration-300 ease-in-out ${
+      className={`absolute inset-0 flex items-center gap-x-3 transition-all lg:gap-x-6 duration-300 ease-in-out ${
         inicio ? "justify-start" : "justify-between"
       } ${activo ? "translate-y-0 opacity-100" : de === "cima" ? "-translate-y-full opacity-0" : "translate-y-full opacity-0"}`}
     >
       {children}
     </span>
   );
+}
+
+/** No telemóvel, o ícone num círculo vermelho; no computador some (`contents`) e o ícone fica como sempre. */
+function Circulo({ children }: { children: React.ReactNode }) {
+  return <span className="grid size-9 shrink-0 place-items-center rounded-full bg-mb-red lg:contents">{children}</span>;
 }
 
 export function LigacaoConta() {

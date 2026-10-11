@@ -232,6 +232,22 @@ export interface ConteudoPainel {
   desporto: { titulo: string; foto: string; textoLider: string; textoProva: string; textoVazio: string };
   eventos: { titulo: string; foto: string; fotoDoEvento: boolean; textoProximo: string; textoVazio: string };
   fichas: { rotas: string; seguranca: string; sobre: string; marketplace: string; forum: string };
+  /**
+   * No telemóvel, o painel cabe num só ecrã e divide-se em páginas que se
+   * passam de lado: os nomes dos separadores de cima e dos mosaicos que só
+   * aparecem aí.
+   */
+  telemovel: {
+    destaques: string;
+    comunidade: string;
+    desporto: string;
+    mais: string;
+    contacto: string;
+    instagram: string;
+    /** Mosaico "A MotoBox" da página Mais: fotografia e uma linha por baixo do título. */
+    fotoSobre: string;
+    textoSobre: string;
+  };
 }
 
 export const PAINEL_PADRAO: ConteudoPainel = {
@@ -273,6 +289,16 @@ export const PAINEL_PADRAO: ConteudoPainel = {
     sobre: "A MotoBox",
     marketplace: "Marketplace",
     forum: "Fórum",
+  },
+  telemovel: {
+    destaques: "Destaques",
+    comunidade: "Comunidade",
+    desporto: "Desporto",
+    mais: "Mais",
+    contacto: "Contacto",
+    instagram: "Instagram",
+    fotoSobre: "banner-sobre",
+    textoSobre: "Quem somos e como fazer parte da comunidade motard",
   },
 };
 

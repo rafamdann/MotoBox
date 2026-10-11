@@ -211,6 +211,20 @@ const ESQUEMA_PAINEL: CampoEsquema[] = [
     ],
   },
   {
+    tipo: "objecto", chave: "telemovel", etiqueta: "No telemóvel",
+    ajuda: "No telemóvel o painel cabe num só ecrã e divide-se em quatro páginas, que se passam de lado ou se escolhem nos separadores de cima.",
+    campos: [
+      { tipo: "texto", chave: "destaques", etiqueta: "Página 1: artigos e Em foco", largura: "meia" },
+      { tipo: "texto", chave: "comunidade", etiqueta: "Página 2: clubes, eventos, fórum e marketplace", largura: "meia" },
+      { tipo: "texto", chave: "desporto", etiqueta: "Página 3: desporto, rotas e segurança", largura: "meia" },
+      { tipo: "texto", chave: "mais", etiqueta: "Página 4: a MotoBox, contacto e redes", largura: "meia" },
+      { tipo: "texto", chave: "contacto", etiqueta: "Mosaico do contacto", largura: "meia" },
+      { tipo: "texto", chave: "instagram", etiqueta: "Mosaico do Instagram", largura: "meia" },
+      { tipo: "imagem", chave: "fotoSobre", etiqueta: "Fotografia do mosaico \"A MotoBox\" (página Mais)", formato: "aspect-[4/3]" },
+      { tipo: "texto", chave: "textoSobre", etiqueta: "Linha do mosaico \"A MotoBox\"", ajuda: "O título é o dos mosaicos pequenos (Sobre a MotoBox)." },
+    ],
+  },
+  {
     tipo: "objecto", chave: "seo", etiqueta: "Nas pesquisas e no separador do navegador",
     campos: [
       { tipo: "texto", chave: "titulo", etiqueta: "Título" },

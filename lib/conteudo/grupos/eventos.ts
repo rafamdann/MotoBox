@@ -130,8 +130,16 @@ export interface ConteudoPaginaArtigos {
   texto: string;
   todos: string;
   vazio: string;
+  /** Ao lado (ou por baixo, no telemóvel) do artigo de abertura: os mais recentes a seguir. */
+  recentes: string;
+  /** Botão da caixa dos mais recentes, que desce até à lista. */
+  verMais: string;
+  /** Título da lista com os restantes artigos. */
+  maisArtigos: string;
   newsletter: boolean;
   /* Página de cada artigo */
+  /** Primeiro elo do caminho no topo do artigo ("Artigos › Categoria"); leva à lista. */
+  artigoCaminho: string;
   artigoLeitura: string;
   artigoPartilhar: string;
   artigoPartilharBotao: string;
@@ -156,7 +164,11 @@ export const PAGINA_ARTIGOS_PADRAO: ConteudoPaginaArtigos = {
     "Clubes, viagens, guias e segurança: o que se passa na comunidade motard angolana, contado por quem lá anda.",
   todos: "Todos",
   vazio: "Ainda não há artigos nesta categoria.",
+  recentes: "Mais recentes",
+  verMais: "Ver mais artigos",
+  maisArtigos: "Mais artigos",
   newsletter: true,
+  artigoCaminho: "Artigos",
   artigoLeitura: "min de leitura",
   artigoPartilhar: "Partilhar",
   artigoPartilharBotao: "Partilhar artigo",

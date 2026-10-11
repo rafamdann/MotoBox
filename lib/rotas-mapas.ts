@@ -50,13 +50,13 @@ export function paragensDoDia(rota: Rota, dia: number): Paragem[] {
 /* ---------------- Tempos ---------------- */
 
 /**
- * Margem sobre o tempo de carro do OSRM: ritmo de grupo, controlos e o
- * cuidado que os buracos, a terra e a areia pedem. Não inclui paragens.
- * Comparado com os tempos publicados (Luanda–Lobito em 6 a 7 horas de
- * carro, Luanda–Malanje em 7 horas com paragens), o OSRM já anda perto
- * do ritmo real de carro; a margem é o que uma mota em grupo acrescenta.
+ * Factor sobre o tempo de carro do OSRM. A mota chega sempre antes do
+ * carro: ultrapassa e fura o trânsito, acelera mais nas subidas e, nos
+ * buracos, contorna-os em vez de quase parar como um carro. A vantagem é
+ * maior no asfalto esburacado e menor na areia, onde a mota também tem de
+ * ir devagar. Não inclui paragens.
  */
-export const MARGEM_MOTA: Record<Troco["piso"], number> = { asfalto: 1.15, buracos: 1.3, terra: 1.4, areia: 1.6 };
+export const MARGEM_MOTA: Record<Troco["piso"], number> = { asfalto: 0.85, buracos: 0.75, terra: 0.85, areia: 0.95 };
 
 export const NOME_PISO: Record<Troco["piso"], string> = {
   asfalto: "Asfalto",

@@ -163,6 +163,7 @@ export function CartaoNumerado({
   foto,
   inverter = false,
   href,
+  compacto = false,
 }: {
   numero: ReactNode;
   sobretitulo?: string;
@@ -171,18 +172,44 @@ export function CartaoNumerado({
   foto?: string | (string | undefined)[];
   inverter?: boolean;
   href?: string;
+  /**
+   * Abaixo do computador, uma linha compacta: o número ao lado do texto, sem
+   * as alturas mínimas e sem a fotografia grande (fica uma miniatura a partir
+   * do tablet). No computador é igual ao cartão normal. Para listas de vários
+   * cartões seguidos, que no telemóvel ocupariam ecrãs inteiros.
+   */
+  compacto?: boolean;
 }) {
+  const c = (normal: string, compactas: string) => (compacto ? compactas : normal);
   const texto = (
-    <div className="painel painel-escuro flex min-h-80 flex-col p-6 lg:p-10">
-      <span aria-hidden className="grid size-10 place-items-center rounded-[4px] bg-mb-red text-lg font-semibold text-white">
+    <div
+      className={`painel painel-escuro flex ${c(
+        "min-h-80 flex-col p-6 lg:p-10",
+        "h-full items-start gap-4 p-5 lg:min-h-80 lg:flex-col lg:items-stretch lg:gap-0 lg:p-10",
+      )}`}
+    >
+      <span
+        aria-hidden
+        className={`grid shrink-0 place-items-center rounded-[4px] bg-mb-red font-semibold text-white ${c(
+          "size-10 text-lg",
+          "size-8 text-base lg:size-10 lg:text-lg",
+        )}`}
+      >
         {numero}
       </span>
-      <div className="mt-auto pt-16">
-        {sobretitulo && <p className="text-sm text-white/80">{sobretitulo}</p>}
-        <h3 className="titulo-4 mt-3">{titulo}</h3>
-        <div className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-white/85">{children}</div>
+      <div className={c("mt-auto pt-16", "min-w-0 flex-1 lg:mt-auto lg:flex-none lg:pt-16")}>
+        {sobretitulo && <p className={c("text-sm text-white/80", "text-[0.8125rem] text-white/80 lg:text-sm")}>{sobretitulo}</p>}
+        <h3 className={`titulo-4 ${c("mt-3", "mt-1 lg:mt-3")}`}>{titulo}</h3>
+        <div
+          className={`max-w-[52ch] leading-relaxed text-white/85 ${c(
+            "mt-4 text-[15px]",
+            "mt-2 text-sm lg:mt-4 lg:text-[15px]",
+          )}`}
+        >
+          {children}
+        </div>
         {href && (
-          <span className="mt-6 inline-flex items-center gap-2 text-sm text-white">
+          <span className={`inline-flex items-center gap-2 text-sm text-white ${c("mt-6", "mt-3 lg:mt-6")}`}>
             <span className="sublinhado">Ver mais</span>
             <Seta className="size-3" />
           </span>
@@ -191,9 +218,19 @@ export function CartaoNumerado({
     </div>
   );
   const corpo = (
-    <div className={`grid gap-[var(--intervalo)] ${foto ? "lg:grid-cols-[1.05fr_1fr]" : ""}`}>
+    <div
+      className={`grid gap-[var(--intervalo)] ${
+        foto ? (compacto ? "sm:grid-cols-[minmax(0,1fr)_11rem] lg:grid-cols-[1.05fr_1fr]" : "lg:grid-cols-[1.05fr_1fr]") : ""
+      }`}
+    >
       <div className={inverter ? "lg:order-2" : ""}>{texto}</div>
-      {foto && <Foto nome={foto} className="min-h-64 lg:min-h-full" largura={1100} />}
+      {foto && (
+        <Foto
+          nome={foto}
+          className={c("min-h-64 lg:min-h-full", "hidden sm:block sm:min-h-full")}
+          largura={1100}
+        />
+      )}
     </div>
   );
   return href ? (

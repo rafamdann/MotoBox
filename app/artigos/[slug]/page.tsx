@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock, Newspaper, UserRound } from "lucide-react";
+import { ArrowLeft, Clock, Newspaper, UserRound } from "lucide-react";
 import { lerNoticia, lerNoticias } from "@/lib/supabase/publico";
 import { dataArtigo } from "@/lib/motobox";
 import { lerDoc } from "@/lib/conteudo";
@@ -59,9 +59,17 @@ export default async function Artigo({ params }: { params: Promise<{ slug: strin
       <Abertura
         foto={fotoDe(artigo.slug, artigo.imagem)}
         sobretitulo={
-          <Link href={`/artigos?categoria=${encodeURIComponent(artigo.categoria)}`} className="hover:text-white">
-            {artigo.categoria}
-          </Link>
+          // Caminho de volta (dentro do <p> do sobretítulo, por isso um <span>): "Artigos › Categoria". Quem chega pelo destaque do painel vê logo onde estão os outros.
+          <span className="inline-flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <Link href="/artigos" className="group inline-flex items-center gap-1.5 text-white">
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />
+              <span className="sublinhado">{t.artigoCaminho}</span>
+            </Link>
+            <span aria-hidden className="text-white/70">/</span>
+            <Link href={`/artigos?categoria=${encodeURIComponent(artigo.categoria)}`} className="hover:text-white">
+              {artigo.categoria}
+            </Link>
+          </span>
         }
         titulo={artigo.titulo}
         tamanho="2"
@@ -112,9 +120,12 @@ export default async function Artigo({ params }: { params: Promise<{ slug: strin
             )}
             <Partilhar titulo={artigo.titulo} rotulo={t.artigoPartilhar} botao={t.artigoPartilharBotao} copiadoTexto={t.artigoCopiado} />
             <GuardarNaConta slug={artigo.slug} rotulo={t.artigoGuardar} botao={t.artigoGuardarBotao} guardadoTexto={t.artigoGuardado} />
-            <Link href="/artigos" className="group inline-flex items-center gap-2 text-sm">
-              <span className="sublinhado">{t.artigoTodos}</span>
-              <Seta className="size-3" />
+            <Link
+              href="/artigos"
+              className="group inline-flex h-12 w-full max-w-[20.5rem] items-center justify-between gap-4 rounded-[var(--raio)] bg-white/10 px-4 text-[15px] text-white transition-colors hover:bg-white/20"
+            >
+              <span>{t.artigoTodos}</span>
+              <Seta className="size-3.5" />
             </Link>
           </aside>
         </div>
@@ -122,10 +133,16 @@ export default async function Artigo({ params }: { params: Promise<{ slug: strin
 
       {relacionados.length > 0 && (
         <Seccao className="!pt-0">
-          <h2 className="titulo-3">{t.artigoContinuar}</h2>
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+            <h2 className="titulo-3">{t.artigoContinuar}</h2>
+            <Link href="/artigos" className="group inline-flex items-center gap-2 text-[15px] text-white">
+              <span className="sublinhado">{t.artigoTodos}</span>
+              <Seta className="size-3.5" />
+            </Link>
+          </div>
           <div className="mt-8 grid gap-[var(--intervalo)] md:grid-cols-2 xl:grid-cols-3">
             {relacionados.map((a) => (
-              <CartaoArtigo key={a.slug} artigo={a} />
+              <CartaoArtigo key={a.slug} artigo={a} variante="linhaTelemovel" />
             ))}
           </div>
         </Seccao>

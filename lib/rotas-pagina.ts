@@ -142,13 +142,13 @@ export type TextosPaginaRotas = Omit<
   "EMERGENCIA" | "DOCUMENTOS" | "REDE_GERAL" | "PRECO_COMBUSTIVEL" | "LEVAR_BASE" | "CLIMA_POR_REGIAO" | "CHECKLIST_VIAGEM" | "REGRAS_ESTRADA" | "CLIMA"
 >;
 
-const pct = (x: number) => Math.round((x - 1) * 100);
+const pct = (x: number) => Math.round((1 - x) * 100);
 
 /** Texto do método, montado a partir das margens para nunca as contradizer. */
 const COMO_CALCULAMOS =
   `Como calculamos: a distância e o tempo de carro de cada troço vêm do OSRM, o motor de rotas sobre o OpenStreetMap. ` +
-  `O tempo de mota junta-lhe ${pct(MARGEM_MOTA.asfalto)} % em asfalto, ${pct(MARGEM_MOTA.buracos)} % em asfalto com buracos, ` +
-  `${pct(MARGEM_MOTA.terra)} % em terra e ${pct(MARGEM_MOTA.areia)} % em areia, pelo ritmo de grupo, pelos buracos e pelos controlos, ` +
+  `De mota chega-se antes: o tempo de mota tira-lhe ${pct(MARGEM_MOTA.asfalto)} % em asfalto, ${pct(MARGEM_MOTA.buracos)} % em asfalto com buracos, ` +
+  `${pct(MARGEM_MOTA.terra)} % em terra e ${pct(MARGEM_MOTA.areia)} % em areia, porque a mota fura o trânsito, ultrapassa com facilidade e contorna os buracos, ` +
   `e não conta as paragens. As altitudes são do modelo de terreno SRTM (30 m), lidas no OpenTopoData ao longo do traçado: ` +
   `a subida acumulada é uma estimativa.`;
 
@@ -289,7 +289,7 @@ export const TEXTOS_PAGINA_ROTAS: TextosPaginaRotas = {
   lista: {
     titulo: "{n} rotas por Angola",
     nota:
-      "Fotografias reais dos locais, com licença livre, do Wikimedia Commons: o autor e a licença estão em cada rota. Distâncias do OSRM sobre o OpenStreetMap; o tempo a rodar inclui uma margem para mota e não conta paragens.",
+      "Fotografias reais dos locais, com licença livre, do Wikimedia Commons: o autor e a licença estão em cada rota. Distâncias do OSRM sobre o OpenStreetMap; o tempo a rodar é o de mota, mais curto do que de carro, e não conta paragens.",
   },
   quandoIr: {
     titulo: "Quando ir",

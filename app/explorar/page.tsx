@@ -18,6 +18,8 @@ import { Chip, FotoFundo, Logotipo, Moldura, Seta, ordem } from "@/components/pa
 import { Tempo } from "@/components/painel/Tempo";
 import { DestaqueRotativo } from "@/components/painel/DestaqueRotativo";
 import { EmFoco } from "@/components/painel/EmFoco";
+import { EmFocoCompacto } from "@/components/painel/EmFocoCompacto";
+import { FichaConta, PainelTelemovel } from "@/components/painel/PainelTelemovel";
 import { Icon } from "@/components/ui";
 import { fotoDe } from "@/app/eventos/foto";
 import { resolverFoco } from "./foco";
@@ -54,7 +56,11 @@ export async function generateMetadata(): Promise<Metadata> {
    destaques, dos dados. No computador o painel nunca rola: a grelha
    aperta-se à altura do ecrã e, num ecrã baixo (variantes "baixo" e
    "mbaixo" em globals.css), os textos secundários encolhem ou saem.
-   No telemóvel, os painéis empilham-se.
+   No telemóvel (abaixo de lg), o painel também cabe num só ecrã:
+   os mosaicos dividem-se em quatro páginas que se passam de lado
+   (Destaques, Comunidade, Desporto e Mais; ver PainelTelemovel),
+   com o tempo e os separadores em cima. As duas versões usam os
+   mesmos dados e levam aos mesmos sítios.
    ============================================================ */
 
 export default async function Painel() {
@@ -81,6 +87,40 @@ export default async function Painel() {
   const data = (iso: string) => `${diaMes(iso).dia} ${diaMes(iso).mes}`;
   const foco = await resolverFoco(c, { eventos, artigos, clubes });
 
+  // O que as duas versões do painel (computador e telemóvel) partilham.
+  const artigosDestaque = destaques.map((a) => ({
+    slug: a.slug, titulo: a.titulo, resumo: a.resumo, categoria: a.categoria, foto: fotoDe(a.slug, a.imagem),
+  }));
+  const intervalo = numeroEntre(p.destaque.intervalo, 0, 60, PAINEL_PADRAO.destaque.intervalo);
+  const textoClubes = preencher(provincias ? p.clubes.texto : p.clubes.textoSemProvincias, { clubes: soClubes.length, provincias });
+  // O piloto e a prova levam à sua própria página; o resto da ficha, ao Desporto.
+  const textoDesporto = (
+    <>
+      {lider
+        ? comLigacoes(p.desporto.textoLider, { piloto: lider.nome, pontos: lider.estatisticas.pontos }, { piloto: `/pilotos/${lider.slug}` })
+        : p.desporto.textoVazio}
+      {proximaProva && (
+        <>
+          {". "}
+          {comLigacoes(
+            p.desporto.textoProva,
+            { prova: proximaProva.titulo, data: data(proximaProva.dataInicio) },
+            { prova: hrefEvento(proximaProva) },
+          )}
+        </>
+      )}
+    </>
+  );
+  const hrefEventos = proximo ? `/eventos/${proximo.slug}` : "/eventos";
+  const fotoEventos =
+    proximo && p.eventos.fotoDoEvento
+      ? [proximo.slug, proximo.imagem, p.eventos.foto, "painel-eventos"]
+      : [p.eventos.foto, "painel-eventos"];
+  const textoEventos = proximo
+    ? preencher(p.eventos.textoProximo, { evento: proximo.titulo, data: data(proximo.dataInicio) })
+    : p.eventos.textoVazio;
+  const t = p.telemovel;
+
   return (
     <Moldura>
       {/* Marca a página para globals.css tirar a rolagem no computador. */}
@@ -88,7 +128,89 @@ export default async function Painel() {
       <Logotipo />
       <h1 className="sr-only">Painel da MotoBox Angola</h1>
 
-      <div className="grid grid-cols-[var(--tile)_var(--tile)_minmax(0,1fr)] gap-[var(--intervalo)] lg:h-full lg:grid-cols-[var(--tile)_repeat(15,minmax(0,1fr))] lg:grid-rows-[var(--tile)_minmax(0,1fr)_minmax(0,0.8fr)]">
+      {/* ---------- Telemóvel: um ecrã, quatro páginas de lado ----------
+          Altura: o ecrã menos a margem de cima e a zona do botão de acção (pb-24 no Cenario). */}
+      <div className="flex h-[calc(100svh-var(--gutter)-6rem)] min-h-[28rem] flex-col gap-[var(--intervalo)] lg:hidden">
+        <div className="revelar h-[var(--tile)] shrink-0 pl-[var(--recorte)]" style={ordem(1)}>
+          <Tempo />
+        </div>
+        <PainelTelemovel
+          paginas={[
+            {
+              id: "destaques",
+              nome: t.destaques,
+              conteudo: (
+                <div className="flex h-full flex-col gap-[var(--intervalo)]">
+                  {/* Título do artigo um pouco mais pequeno do que no computador, para caber inteiro num telemóvel estreito. */}
+                  <section aria-label="Artigos" className="painel revelar group min-h-0 flex-1 [&_h2]:text-[1.625rem]" style={ordem(3)}>
+                    {destaques.length ? (
+                      <DestaqueRotativo artigos={artigosDestaque} outros={outros} textos={p.destaque} intervalo={intervalo} />
+                    ) : (
+                      <PainelVazio href="/artigos" titulo={p.destaque.semArtigos} icone={<Newspaper />} />
+                    )}
+                  </section>
+                  <EmFocoCompacto foco={foco} unidades={c.unidades} className="shrink-0" i={4} />
+                </div>
+              ),
+            },
+            {
+              id: "comunidade",
+              nome: t.comunidade,
+              conteudo: (
+                <div className="grid h-full grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)_7rem] gap-[var(--intervalo)]">
+                  <PainelFoto
+                    href="/clubes" foto={[p.clubes.foto, "painel-clubes"]} icone={<Users />}
+                    titulo={p.clubes.titulo} texto={textoClubes} className="col-span-2" compacto i={3}
+                  />
+                  <PainelFoto
+                    href={hrefEventos} foto={fotoEventos} icone={<CalendarDays />}
+                    titulo={p.eventos.titulo} texto={textoEventos} className="col-span-2" compacto i={4}
+                  />
+                  <Ficha href="/forum" icone={<MessagesSquare />} titulo={p.fichas.forum} enche i={5} />
+                  <Ficha href="/marketplace" icone={<Store />} titulo={p.fichas.marketplace} enche i={6} />
+                </div>
+              ),
+            },
+            {
+              id: "desporto",
+              nome: t.desporto,
+              conteudo: (
+                <div className="grid h-full grid-cols-2 grid-rows-[minmax(0,1fr)_7rem] gap-[var(--intervalo)]">
+                  <PainelFoto
+                    href="/desporto" foto={[p.desporto.foto, "competicao", "kilamba"]} icone={<Trophy />}
+                    titulo={p.desporto.titulo} texto={textoDesporto} className="col-span-2" compacto i={3}
+                  />
+                  <Ficha href="/rotas" icone={<Route />} titulo={p.fichas.rotas} enche i={4} />
+                  <Ficha href="/seguranca" icone={<ShieldCheck />} titulo={p.fichas.seguranca} enche i={5} />
+                </div>
+              ),
+            },
+            {
+              id: "mais",
+              nome: t.mais,
+              conteudo: (
+                <div className="grid h-full grid-cols-2 grid-rows-[minmax(0,1fr)_7rem_3.5rem] gap-[var(--intervalo)]">
+                  <PainelFoto
+                    href="/sobre" foto={[t.fotoSobre, "banner-sobre", "geral"]} icone={<BookOpen />}
+                    titulo={p.fichas.sobre} texto={t.textoSobre} className="col-span-2" compacto i={3}
+                  />
+                  <Ficha
+                    href="/contacto" icone={<Mail />} titulo={t.contacto} enche i={4}
+                    className={instagram ? "" : "col-span-2"}
+                  />
+                  {instagram && (
+                    <Ficha href={instagram.url} externo icone={<Icon name="instagram" />} titulo={t.instagram} enche i={5} />
+                  )}
+                  <FichaConta className="col-span-2" i={6} />
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
+
+      {/* ---------- Computador: a grelha de 16 colunas ---------- */}
+      <div className="hidden grid-cols-[var(--tile)_var(--tile)_minmax(0,1fr)] gap-[var(--intervalo)] lg:grid lg:h-full lg:grid-cols-[var(--tile)_repeat(15,minmax(0,1fr))] lg:grid-rows-[var(--tile)_minmax(0,1fr)_minmax(0,0.8fr)]">
         {/* ---------- Artigos em destaque (passam de um para o outro) ---------- */}
         <section
           aria-label="Artigos"
@@ -96,14 +218,7 @@ export default async function Painel() {
           style={ordem(0)}
         >
           {destaques.length ? (
-            <DestaqueRotativo
-              artigos={destaques.map((a) => ({
-                slug: a.slug, titulo: a.titulo, resumo: a.resumo, categoria: a.categoria, foto: fotoDe(a.slug, a.imagem),
-              }))}
-              outros={outros}
-              textos={p.destaque}
-              intervalo={numeroEntre(p.destaque.intervalo, 0, 60, PAINEL_PADRAO.destaque.intervalo)}
-            />
+            <DestaqueRotativo artigos={artigosDestaque} outros={outros} textos={p.destaque} intervalo={intervalo} />
           ) : (
             <PainelVazio href="/artigos" titulo={p.destaque.semArtigos} icone={<Newspaper />} />
           )}
@@ -115,7 +230,7 @@ export default async function Painel() {
           foto={[p.clubes.foto, "painel-clubes"]}
           icone={<Users />}
           titulo={p.clubes.titulo}
-          texto={preencher(provincias ? p.clubes.texto : p.clubes.textoSemProvincias, { clubes: soClubes.length, provincias })}
+          texto={textoClubes}
           className="order-2 col-span-full h-64 lg:order-none lg:col-[1/5] lg:row-[3/4] lg:h-auto"
           i={1}
         />
@@ -126,43 +241,18 @@ export default async function Painel() {
           foto={[p.desporto.foto, "competicao", "kilamba"]}
           icone={<Trophy />}
           titulo={p.desporto.titulo}
-          // O piloto e a prova levam à sua própria página; o resto da ficha, ao Desporto.
-          texto={
-            <>
-              {lider
-                ? comLigacoes(p.desporto.textoLider, { piloto: lider.nome, pontos: lider.estatisticas.pontos }, { piloto: `/pilotos/${lider.slug}` })
-                : p.desporto.textoVazio}
-              {proximaProva && (
-                <>
-                  {". "}
-                  {comLigacoes(
-                    p.desporto.textoProva,
-                    { prova: proximaProva.titulo, data: data(proximaProva.dataInicio) },
-                    { prova: hrefEvento(proximaProva) },
-                  )}
-                </>
-              )}
-            </>
-          }
+          texto={textoDesporto}
           className="order-3 col-span-full h-64 lg:order-none lg:col-[5/9] lg:row-[3/4] lg:h-auto"
           i={2}
         />
 
         {/* ---------- Eventos ---------- */}
         <PainelFoto
-          href={proximo ? `/eventos/${proximo.slug}` : "/eventos"}
-          foto={
-            proximo && p.eventos.fotoDoEvento
-              ? [proximo.slug, proximo.imagem, p.eventos.foto, "painel-eventos"]
-              : [p.eventos.foto, "painel-eventos"]
-          }
+          href={hrefEventos}
+          foto={fotoEventos}
           icone={<CalendarDays />}
           titulo={p.eventos.titulo}
-          texto={
-            proximo
-              ? preencher(p.eventos.textoProximo, { evento: proximo.titulo, data: data(proximo.dataInicio) })
-              : p.eventos.textoVazio
-          }
+          texto={textoEventos}
           className="order-4 col-span-full h-64 lg:order-none lg:col-[9/12] lg:row-[3/4] lg:h-auto"
           i={3}
         />
@@ -251,6 +341,7 @@ function PainelFoto({
   titulo,
   texto,
   className,
+  compacto = false,
   i,
 }: {
   href: string;
@@ -259,10 +350,12 @@ function PainelFoto({
   titulo: string;
   texto?: ReactNode;
   className: string;
+  /** No painel do telemóvel: margens mais curtas e sem a seta, para caber numa página. */
+  compacto?: boolean;
   i: number;
 }) {
   return (
-    <div className={`painel revelar group flex flex-col p-6 baixo:p-5 mbaixo:p-4 ${className}`} style={ordem(i)}>
+    <div className={`painel revelar group flex flex-col ${compacto ? "p-5" : "p-6 baixo:p-5 mbaixo:p-4"} ${className}`} style={ordem(i)}>
       <FotoFundo nome={foto} veu="cima" tamanhos="(max-width: 1024px) 100vw, 35vw" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/80 to-transparent" aria-hidden />
       {/* A ligação da ficha cobre-a toda; o conteúdo deixa passar os cliques, menos as ligações do texto. */}
@@ -275,7 +368,7 @@ function PainelFoto({
         <h2 className="titulo-4 max-w-[12ch]">{titulo}</h2>
         <Chip>{icone}</Chip>
       </div>
-      <Seta className="pointer-events-none mt-4 size-5 baixo:mt-2 mbaixo:hidden" />
+      {!compacto && <Seta className="pointer-events-none mt-4 size-5 baixo:mt-2 mbaixo:hidden" />}
       {texto && (
         <p className="pointer-events-none mt-auto line-clamp-3 max-w-[34ch] pt-2 text-sm leading-snug text-white/85 baixo:line-clamp-2">
           {texto}
@@ -289,24 +382,34 @@ function PainelFoto({
  * Ficha escura pequena: quadrado de ícone em cima, título e seta numa só
  * linha em baixo, para caber inteira mesmo nas linhas mais baixas da grelha.
  */
-function Ficha({ href, icone, titulo, className = "", estreita = false, i }: {
+function Ficha({ href, icone, titulo, className = "", estreita = false, enche = false, externo = false, i }: {
   href: string; icone: ReactNode; titulo: string; className?: string;
   /** Uma de três lado a lado: abaixo dos ecrãs largos (2xl) fica só com o título. */
   estreita?: boolean;
+  /** No painel do telemóvel: enche a sua célula da página, em vez da altura fixa. */
+  enche?: boolean;
+  /** Endereço fora do site (abre noutro separador). */
+  externo?: boolean;
   i: number;
 }) {
-  return (
-    <Link
-      href={href}
-      className={`painel painel-escuro revelar group @container flex h-32 min-w-0 flex-col justify-between gap-2 p-3 transition-colors hover:bg-near-black lg:h-auto 2xl:p-4 baixo:gap-1 baixo:p-3 mbaixo:p-2.5 ${className}`}
-      style={ordem(i)}
-    >
+  const classe = `painel painel-escuro revelar group @container flex ${enche ? "h-full" : "h-32"} min-w-0 flex-col justify-between gap-2 ${enche ? "p-4" : "p-3"} transition-colors hover:bg-near-black lg:h-auto 2xl:p-4 baixo:gap-1 baixo:p-3 mbaixo:p-2.5 ${className}`;
+  const conteudo = (
+    <>
       <Chip className="self-end mbaixo:!size-7 mbaixo:[&_svg]:!size-4">{icone}</Chip>
       <span className="flex items-center justify-between gap-2">
         <span className="truncate text-[15px] font-semibold leading-tight">{titulo}</span>
         {/* A seta só aparece quando a ficha tem largura para ela e para o título. */}
         <Seta className={`hidden size-3.5 shrink-0 @min-[6.25rem]:block ${estreita ? "max-2xl:!hidden" : ""}`} />
       </span>
+    </>
+  );
+  return externo ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={classe} style={ordem(i)}>
+      {conteudo}
+    </a>
+  ) : (
+    <Link href={href} className={classe} style={ordem(i)}>
+      {conteudo}
     </Link>
   );
 }

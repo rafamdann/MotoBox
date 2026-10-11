@@ -11,7 +11,54 @@ import { fotoDe } from "@/app/eventos/foto";
    a seta que salta ao passar o rato.
    ============================================================ */
 
-export function CartaoArtigo({ artigo, grande = false }: { artigo: Noticia; grande?: boolean }) {
+/** Artigo numa linha: miniatura à esquerda, categoria, data e título. */
+function LinhaArtigo({ artigo, className = "" }: { artigo: Noticia; className?: string }) {
+  return (
+    <Link href={`/artigos/${artigo.slug}`} className={`group flex items-stretch gap-3 ${className}`}>
+      <Foto
+        nome={fotoDe(artigo.slug, artigo.imagem)}
+        className="w-[5.5rem] shrink-0 self-stretch min-h-[5rem]"
+        largura={300}
+        tamanhos="120px"
+      />
+      <div className="flex min-w-0 flex-1 flex-col justify-center py-1">
+        <p className="truncate text-xs text-white/80">
+          <span className="text-mb-red-light">{artigo.categoria}</span> · {dataArtigo(artigo.data)}
+        </p>
+        <h3 className="mt-1 line-clamp-3 text-[0.9375rem] font-semibold leading-snug tracking-tight text-white transition-colors group-hover:text-white/85">
+          {artigo.titulo}
+        </h3>
+      </div>
+      <Seta className="mr-1 mt-1.5 size-3 self-start" />
+    </Link>
+  );
+}
+
+/**
+ * Cartão de artigo. `grande`: o artigo de abertura, sobre a fotografia.
+ * `linha`: sempre numa linha compacta (listas laterais). `linhaTelemovel`:
+ * linha compacta no telemóvel e cartão normal a partir do tablet.
+ */
+export function CartaoArtigo({
+  artigo,
+  grande = false,
+  variante,
+}: {
+  artigo: Noticia;
+  grande?: boolean;
+  variante?: "linha" | "linhaTelemovel";
+}) {
+  if (variante === "linha") return <LinhaArtigo artigo={artigo} />;
+  if (variante === "linhaTelemovel") {
+    return (
+      <>
+        <LinhaArtigo artigo={artigo} className="painel painel-escuro p-[var(--intervalo)] md:hidden" />
+        <div className="hidden md:contents">
+          <CartaoArtigo artigo={artigo} />
+        </div>
+      </>
+    );
+  }
   if (grande) {
     return (
       <Link

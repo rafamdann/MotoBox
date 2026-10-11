@@ -12,7 +12,7 @@ import { PaginaInterior } from "@/components/painel/PaginaInterior";
 import {
   Abertura, BotaoMB, Cabecalho, CartaoIcone, CartaoNumerado, Chamada, FraseFinal, Numeros, Seccao, Triptico,
 } from "@/components/painel/blocos";
-import { Foto, Monograma } from "@/components/painel/kit";
+import { Chip, Foto, Monograma } from "@/components/painel/kit";
 import { Icon } from "@/components/ui";
 
 // O Next exige um literal aqui, não aceita constante importada.
@@ -86,8 +86,12 @@ export default async function Sobre() {
 
       {/* ---------- A história ---------- */}
       <Seccao>
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
-          <Cabecalho icone={<BookOpen />} titulo={s.historia.titulo} />
+        {/* O quadrado vai por cima e o título fica à altura da primeira linha do texto. */}
+        <Chip grande className="mb-8">
+          <BookOpen />
+        </Chip>
+        <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+          <h2 className="titulo-2 max-w-2xl text-balance">{s.historia.titulo}</h2>
           <div className="prosa max-w-[62ch]">
             {s.historia.paragrafos.map((p, i) => (
               <p key={i}>{p}</p>
@@ -117,7 +121,8 @@ export default async function Sobre() {
       {/* ---------- O que fazemos ---------- */}
       <Seccao>
         <h2 className="titulo-2">{s.encontra.titulo}</h2>
-        <div className="mt-10 grid gap-[var(--intervalo)]">
+        {/* No telemóvel e no tablet, cartões compactos: a lista não ocupa ecrãs inteiros. */}
+        <div className="mt-6 grid gap-[var(--intervalo)] lg:mt-10">
           {s.encontra.cartoes.map((c, i) => (
             <CartaoNumerado
               key={i}
@@ -127,6 +132,7 @@ export default async function Sobre() {
               foto={c.foto}
               href={c.ligacao || undefined}
               inverter={i % 2 === 1}
+              compacto
             >
               {c.texto}
             </CartaoNumerado>
@@ -151,7 +157,7 @@ export default async function Sobre() {
         <Cabecalho titulo={s.equipa.titulo} texto={s.equipa.texto} />
         <div className="mt-10 grid gap-[var(--intervalo)] md:grid-cols-3">
           {s.equipa.pessoas.map((p, i) => (
-            <div key={i} className="painel painel-escuro flex min-h-72 flex-col p-6">
+            <div key={i} className="painel painel-escuro flex flex-col p-6 md:min-h-72">
               {p.camara ? (
                 <span className="grid size-14 place-items-center rounded-[4px] bg-mb-red" aria-hidden>
                   <Camera className="size-6" />
@@ -159,7 +165,7 @@ export default async function Sobre() {
               ) : (
                 <Monograma nome={p.nome} className="size-14 text-lg" />
               )}
-              <p className="mt-auto pt-10 text-sm text-mb-red-light">{p.papel}</p>
+              <p className="mt-auto pt-6 text-sm text-mb-red-light md:pt-10">{p.papel}</p>
               <h3 className="mt-1 text-xl font-semibold">{p.nome}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/80">{p.texto}</p>
             </div>

@@ -55,6 +55,9 @@ const ESQUEMA_PAGINA: CampoEsquema[] = [
       { tipo: "texto", chave: "titulo", etiqueta: "Título" },
       { tipo: "area", chave: "texto", etiqueta: "Texto de apresentação", linhas: 3 },
       { tipo: "texto", chave: "vazio", etiqueta: "Aviso de categoria sem artigos", ajuda: "Aparece quando se escolhe uma categoria que ainda não tem artigos." },
+      { tipo: "texto", chave: "recentes", etiqueta: "Título da caixa dos mais recentes", ajuda: "Ao lado do artigo de abertura (por baixo, no telemóvel), com os quatro artigos seguintes.", largura: "meia" },
+      { tipo: "texto", chave: "verMais", etiqueta: "Botão da caixa dos mais recentes", ajuda: "Desce até à lista com os outros artigos.", largura: "meia" },
+      { tipo: "texto", chave: "maisArtigos", etiqueta: "Título da lista dos outros artigos", largura: "meia" },
       { tipo: "booleano", chave: "newsletter", etiqueta: "Quadro da newsletter no fim da página", descricao: "Convida quem lê a receber os artigos por email." },
     ],
   },
@@ -62,6 +65,7 @@ const ESQUEMA_PAGINA: CampoEsquema[] = [
     tipo: "secao", titulo: "Página de cada artigo",
     descricao: "Textos fixos que se repetem em todos os artigos.",
     campos: [
+      { tipo: "texto", chave: "artigoCaminho", etiqueta: "Caminho no topo do artigo", ajuda: "Lê-se «Artigos › Categoria», por cima do título; leva de volta à lista de artigos.", largura: "meia" },
       { tipo: "texto", chave: "artigoLeitura", etiqueta: "Depois dos minutos de leitura", ajuda: "No topo do artigo, ex.: «5 min de leitura».", largura: "meia" },
       { tipo: "texto", chave: "artigoEtiquetas", etiqueta: "Título das etiquetas", ajuda: "Por cima das etiquetas, ao lado do texto.", largura: "meia" },
       { tipo: "texto", chave: "artigoPartilhar", etiqueta: "Título de partilhar", largura: "meia" },

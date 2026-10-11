@@ -50,7 +50,7 @@ export function NewsletterPainel({
   }
 
   return (
-    <div className="painel painel-escuro grid gap-8 p-6 md:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-end">
+    <div className="painel painel-escuro grid gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-end">
       <div>
         <span className="chip-mb chip-mb-lg" aria-hidden>
           <Mail />
@@ -62,7 +62,9 @@ export function NewsletterPainel({
         <label htmlFor="news-email" className="mb-2 block text-sm text-white/70">
           Email
         </label>
-        <div className="flex flex-col gap-[var(--intervalo)] sm:flex-row">
+        {/* O campo é o elemento principal: ocupa a largura toda (no telemóvel, com o
+            botão por baixo, da mesma altura); a partir do sm ficam lado a lado. */}
+        <div className="flex flex-col gap-[var(--intervalo)] sm:flex-row sm:items-stretch">
           <input
             id="news-email"
             type="email"
@@ -71,12 +73,12 @@ export function NewsletterPainel({
             placeholder="o.seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="campo h-14 flex-1"
+            className="campo h-14 w-full min-w-0 shrink-0 rounded-[var(--raio)] text-base sm:w-auto sm:flex-1 sm:shrink"
           />
           <button
             type="submit"
             disabled={estado === "a-enviar"}
-            className="h-14 rounded-[var(--raio)] bg-mb-red px-6 text-[15px] text-white transition-colors hover:bg-mb-red-dark disabled:opacity-60"
+            className="h-14 w-full shrink-0 rounded-[var(--raio)] bg-mb-red px-6 text-[15px] font-medium text-white transition-colors hover:bg-mb-red-dark disabled:opacity-60 sm:w-auto sm:min-w-[9.5rem]"
           >
             {estado === "a-enviar" ? "A enviar..." : "Subscrever"}
           </button>

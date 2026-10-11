@@ -27,7 +27,7 @@ const km1 = (x: number) => Math.round(x * 10) / 10;
 
 /** Minutos de mota num troço: os de carro com a margem do piso, aos 5 minutos. */
 const minMota = (t: Partial<Troco>) =>
-  Math.round((n(t.minCarro) * (MARGEM_MOTA[(t.piso as PisoTroco) ?? "asfalto"] ?? 1.15)) / 5) * 5;
+  Math.round((n(t.minCarro) * (MARGEM_MOTA[(t.piso as PisoTroco) ?? "asfalto"] ?? 0.85)) / 5) * 5;
 
 export const paragensDe = (r: Rota): Paragem[] => (Array.isArray(r.paragens) ? r.paragens : []);
 export const trocosDe = (r: Rota): Troco[] => (Array.isArray(r.trocos) ? r.trocos : []);
@@ -352,7 +352,7 @@ export function EditorTrocos({ rota, mudar }: { rota: Rota; mudar: (r: Rota) => 
         { tipo: "seleccao", chave: "de", etiqueta: "De", largura: "meia", opcoes: opcoesParagens },
         { tipo: "seleccao", chave: "para", etiqueta: "Para", largura: "meia", opcoes: opcoesParagens },
         { tipo: "numero", chave: "dia", etiqueta: "Dia", largura: "meia", min: 1, passo: 1, ajuda: "Em que dia da viagem se faz." },
-        { tipo: "seleccao", chave: "piso", etiqueta: "Piso", largura: "meia", opcoes: OPCOES_PISO, ajuda: "Conta para o tempo de mota (mais margem na terra e na areia)." },
+        { tipo: "seleccao", chave: "piso", etiqueta: "Piso", largura: "meia", opcoes: OPCOES_PISO, ajuda: "Conta para o tempo de mota (a mota ganha mais tempo no asfalto com buracos e menos na areia)." },
         { tipo: "numero", chave: "km", etiqueta: "Distância (km)", largura: "meia", min: 0, ajuda: "Preenche-se ao recalcular o traçado." },
         { tipo: "numero", chave: "minCarro", etiqueta: "Minutos de carro", largura: "meia", min: 0, ajuda: "Preenche-se ao recalcular o traçado." },
         {
@@ -360,7 +360,7 @@ export function EditorTrocos({ rota, mudar }: { rota: Rota; mudar: (r: Rota) => 
           render: (_v, _m, t) => (
             <p className="rounded-[var(--raio)] bg-white/[0.05] px-3 py-2.5 text-sm text-white/75">
               A página mostra <strong className="text-white">{duracao(minMota({ minCarro: Number(t.minCarro), piso: t.piso as PisoTroco }))}</strong> de mota:
-              os minutos de carro com a margem do piso, sem contar paragens.
+              sempre menos do que de carro (a mota fura o trânsito e contorna os buracos), sem contar paragens.
             </p>
           ),
         },

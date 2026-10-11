@@ -629,6 +629,20 @@
   color: #fff;
 }
 
+/* ---------- Contagem baixa ----------
+   O "Em foco" do painel do telemóvel (EmFocoCompacto) leva a contagem
+   decrescente (ContagemUbuntu) em fichas mais baixas, para o painel
+   caber num só ecrã. Fora de camadas, para ganhar às utilidades. */
+.contagem-compacta > span > span > span {
+  padding-block: 0.375rem;
+}
+.contagem-compacta > span > span > span > span:first-child {
+  font-size: 1.5rem;
+}
+.contagem-compacta > span > span > span > span + span {
+  margin-top: 0.25rem;
+}
+
 /* ---------- Barras de deslocação ---------- */
 ::-webkit-scrollbar {
   width: 8px;
