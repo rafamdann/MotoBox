@@ -173,7 +173,7 @@ function Abertura({ textos }: { textos: ConteudoAbertura }) {
 
       <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center px-5 pb-4 pt-10 text-center [@media(max-height:720px)]:pt-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={comBase("/marca/motobox-original-240.png")} alt="" className="w-20 sm:w-24 [@media(max-height:720px)]:w-14" />
+        <img src={comBase("/marca/motobox-palavra-480.png")} alt="" className="w-44 sm:w-56 [@media(max-height:720px)]:w-36" />
         {textos.sobretitulo && (
           <p className="mt-5 text-xs uppercase tracking-[0.3em] text-white/85 sm:text-[13px] [@media(max-height:720px)]:mt-3">{texto("sobretitulo")}</p>
         )}

@@ -521,12 +521,12 @@ function Compra({ evento, restaurar, textos: tx }: { evento: Evento; restaurar: 
                     <div className="min-w-0 p-6">
                       <div className="flex items-center justify-between gap-3">
                         <Image
-                          src={comBase("/marca/motobox-original-240.png")}
+                          src={comBase("/marca/motobox-palavra-480.png")}
                           alt="MotoBox"
-                          width={240}
-                          height={240}
+                          width={480}
+                          height={118}
                           unoptimized
-                          className="w-14"
+                          className="w-28"
                         />
                         <Etiqueta tom="vermelho">{b.tipo}</Etiqueta>
                       </div>

@@ -46,13 +46,13 @@ export function Logotipo({ flutuante = false }: { flutuante?: boolean }) {
         }`}
       >
         <Image
-          src={comBase("/marca/motobox-original-240.png")}
+          src={comBase("/marca/motobox-palavra-480.png")}
           alt=""
-          width={240}
-          height={240}
+          width={480}
+          height={118}
           priority
           unoptimized
-          className="w-[90%] max-w-[5.25rem] transition-transform duration-500 group-hover:scale-105"
+          className="w-[94%] transition-transform duration-500 group-hover:scale-105"
         />
       </Link>
     </div>
