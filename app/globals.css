@@ -643,6 +643,21 @@
   margin-top: 0.25rem;
 }
 
+/* ---------- Destaque do painel: aperta-se até caber (DestaqueRotativo) ---------- */
+.destaque-rotativo:not([data-aperto="0"]):is([data-aperto]) .dr-resumo {
+  display: none;
+}
+.destaque-rotativo:is([data-aperto="2"], [data-aperto="3"]) .dr-titulo {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.destaque-rotativo[data-aperto="3"] .dr-titulo {
+  font-size: 1.5rem;
+}
+.destaque-rotativo[data-sem-caixa] .dr-texto {
+  padding-right: 2rem;
+}
+
 /* ---------- Barras de deslocação ---------- */
 ::-webkit-scrollbar {
   width: 8px;

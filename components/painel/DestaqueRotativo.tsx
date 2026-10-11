@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Newspaper, Pause, Play } from "lucide-react";
 import { Chip, FotoFundo, Seta } from "./kit";
 
@@ -59,6 +59,9 @@ export function DestaqueRotativo({
   const calmo = useSyncExternalStore(subscreverCalma, () => window.matchMedia(consultaCalma).matches, () => false);
   const barra = useRef<HTMLSpanElement>(null);
   const animacao = useRef<Animation | null>(null);
+  const raiz = useRef<HTMLDivElement>(null);
+  const bloco = useRef<HTMLDivElement>(null);
+  const lateral = useRef<HTMLElement>(null);
 
   const roda = n > 1 && intervalo > 0 && !calmo;
   const parado = pausaManual || sobre || foco;
@@ -86,9 +89,61 @@ export function DestaqueRotativo({
   const escolher = useCallback((i: number) => setActivo(i), []);
   const mais = outros.filter((a) => a.slug !== actual.slug).slice(0, 3);
 
+  // Encaixe pela altura real do painel (e não pela da janela): as letras não
+  // medem o mesmo em todos os computadores (no Mac são maiores), por isso
+  // mede-se e aperta-se até caber. Só mexe em atributos do DOM, sem estado.
+  useLayoutEffect(() => {
+    const r = raiz.current;
+    if (!r) return;
+    const encaixar = () => {
+      const P = r.getBoundingClientRect();
+      if (!P.height) return;
+      // "Mais artigos": tira artigos do fim até a caixa caber por baixo do ícone do canto.
+      const caixa = lateral.current;
+      if (caixa) {
+        const itens = [...caixa.querySelectorAll<HTMLElement>("li")];
+        caixa.style.display = "";
+        itens.forEach((li) => (li.style.display = ""));
+        if (caixa.offsetParent) {
+          const livre = P.height - 76;
+          let visiveis = itens.length;
+          while (caixa.offsetHeight > livre && visiveis > 1) itens[--visiveis].style.display = "none";
+          if (caixa.offsetHeight > livre) caixa.style.display = "none";
+        }
+        r.toggleAttribute("data-sem-caixa", caixa.style.display === "none");
+      }
+      // O texto do destaque não pode subir para cima do logótipo: primeiro sai o
+      // resumo, depois o título fica em duas linhas, por fim fica mais pequeno.
+      const logo = [...document.querySelectorAll<HTMLElement>("a[aria-label^=\"MotoBox Angola\"]")]
+        .map((a) => a.getBoundingClientRect())
+        .find((L) => L.width && L.right > P.left && L.left < P.right && L.bottom > P.top && L.top < P.bottom);
+      const topoLivre = (logo ? logo.bottom - P.top : 0) + 14;
+      const texto = bloco.current;
+      if (!texto) return;
+      for (let nivel = 0; nivel <= 3; nivel++) {
+        r.dataset.aperto = String(nivel);
+        if (texto.getBoundingClientRect().top - P.top >= topoLivre) break;
+      }
+    };
+    encaixar();
+    const obs = new ResizeObserver(encaixar);
+    obs.observe(r);
+    document.fonts?.ready.then(encaixar).catch(() => {});
+    // Durante a animação de entrada o painel ainda está deslocado: volta a medir no fim.
+    const painel = r.closest(".revelar");
+    painel?.addEventListener("animationend", encaixar);
+    const tarde = window.setTimeout(encaixar, 1500);
+    return () => {
+      obs.disconnect();
+      painel?.removeEventListener("animationend", encaixar);
+      window.clearTimeout(tarde);
+    };
+  }, [activo]);
+
   return (
     <div
-      className="absolute inset-0"
+      ref={raiz}
+      className="destaque-rotativo absolute inset-0"
       onMouseEnter={() => setSobre(true)}
       onMouseLeave={() => setSobre(false)}
       // Só o foco do teclado pára a passagem: um clique num ponto escolhe e deixa continuar.
@@ -117,7 +172,7 @@ export function DestaqueRotativo({
         <Chip><Newspaper /></Chip>
       </span>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-6 md:p-8 xl:pr-[21rem] baixo:p-6 baixo:xl:pr-[19rem]">
+      <div ref={bloco} className="dr-texto pointer-events-none absolute inset-x-0 bottom-0 z-20 p-6 md:p-8 lg:pr-[18rem] xl:pr-[21rem] baixo:p-6 baixo:xl:pr-[19rem]">
         {/* Os textos ocupam a mesma célula: a altura é a do maior e a troca não salta. */}
         <div className="grid items-end">
           {artigos.map((a, i) => (
@@ -128,8 +183,8 @@ export function DestaqueRotativo({
               style={{ opacity: i === activo ? 1 : 0 }}
             >
               <p className="text-sm text-white/85">{textos.rotulo} · {a.categoria}</p>
-              <h2 className="titulo-3 mt-3 line-clamp-3 max-w-[20ch] text-balance baixo:mt-2 baixo:line-clamp-2 baixo:text-[1.75rem]">{a.titulo}</h2>
-              <p className="mt-3 line-clamp-3 max-w-[50ch] text-sm leading-relaxed text-white/90 md:text-[15px] baixo:line-clamp-2 mbaixo:hidden">
+              <h2 className="dr-titulo titulo-3 mt-3 line-clamp-3 max-w-[20ch] text-balance baixo:mt-2 baixo:line-clamp-2 baixo:text-[1.75rem]">{a.titulo}</h2>
+              <p className="dr-resumo mt-3 line-clamp-3 max-w-[50ch] text-sm leading-relaxed text-white/90 md:text-[15px] baixo:line-clamp-2 mbaixo:hidden">
                 {a.resumo}
               </p>
             </div>
@@ -181,16 +236,16 @@ export function DestaqueRotativo({
       </div>
 
       {/* Mais artigos, por cima da fotografia */}
-      <aside className="absolute bottom-0 right-0 z-20 hidden w-[20rem] p-5 xl:block baixo:w-[18rem] baixo:p-4">
+      <aside ref={lateral} className="absolute bottom-0 right-0 z-20 hidden w-[17rem] p-4 lg:block xl:w-[20rem] xl:p-5 baixo:xl:w-[18rem] baixo:xl:p-4">
         <div className="rounded-[var(--raio)] bg-black/60 p-4 backdrop-blur-md baixo:p-3">
           <p className="text-xs uppercase tracking-[0.2em] text-white/75">{textos.maisArtigos}</p>
           <ul className="mt-3 divide-y divide-white/10">
-            {mais.map((a, i) => (
-              // Num ecrã baixo ficam dois artigos; num muito baixo, um.
-              <li key={a.slug} className={i === 2 ? "baixo:hidden" : i === 1 ? "mbaixo:hidden" : ""}>
+            {/* Os que não cabem na altura do painel saem pelo fim (ver "encaixar"). */}
+            {mais.map((a) => (
+              <li key={a.slug}>
                 <Link href={`/artigos/${a.slug}`} className="group/item block py-2.5 baixo:py-2">
                   <span className="block text-xs text-mb-red-light">{a.categoria}</span>
-                  <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-white/90 transition-colors group-hover/item:text-white">
+                  <span className="mt-0.5 line-clamp-2 text-sm leading-snug text-white/90 transition-colors group-hover/item:text-white">
                     {a.titulo}
                   </span>
                 </Link>
